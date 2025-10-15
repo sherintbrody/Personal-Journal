@@ -6,7 +6,7 @@ import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Calendar as CalendarIcon, Plus, Search, TrendingUp, TrendingDown, BookOpen, Target, Lightbulb, Trash2 } from 'lucide-react';
+import { Calendar as CalendarIcon, Plus, Search, Trash2, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Trade {
@@ -48,6 +48,11 @@ interface JournalProps {
   trades?: Trade[];
 }
 
+interface DeleteConfirmation {
+  entryId: string;
+  position: { top: number; left: number };
+}
+
 const MOODS = [
   'Excellent', 'Good', 'Neutral', 'Anxious', 'Frustrated', 'Confident', 'Uncertain', 'Motivated'
 ];
@@ -61,6 +66,7 @@ export function Journal({ entries, onAddEntry, onUpdateEntry, onDeleteEntry, tra
   const [isAddingEntry, setIsAddingEntry] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterMood, setFilterMood] = useState('all');
+  const [deleteConfirmation, setDeleteConfirmation] = useState<DeleteConfirmation | null>(null);
 
   const [newEntry, setNewEntry] = useState({
     title: '',
@@ -124,7 +130,6 @@ export function Journal({ entries, onAddEntry, onUpdateEntry, onDeleteEntry, tra
         tags: newEntry.tags.length > 0 ? newEntry.tags : undefined
       });
       
-      // Reset form
       setNewEntry({
         title: '',
         content: '',
@@ -132,19 +137,42 @@ export function Journal({ entries, onAddEntry, onUpdateEntry, onDeleteEntry, tra
         tags: []
       });
       setIsAddingEntry(false);
+      toast.success('Journal entry added successfully!');
     } catch (error) {
       console.error('Error adding journal entry:', error);
+      toast.error('Failed to add journal entry');
     }
   };
 
-  const handleDeleteEntry = async (id: string) => {
-    if (confirm('Are you sure you want to delete this journal entry?')) {
-      try {
-        await onDeleteEntry(id);
-      } catch (error) {
-        console.error('Error deleting entry:', error);
+  const handleDeleteClick = (entryId: string, event: React.MouseEvent<HTMLButtonElement>) => {
+    const button = event.currentTarget;
+    const rect = button.getBoundingClientRect();
+    
+    setDeleteConfirmation({
+      entryId,
+      position: {
+        top: rect.top + window.scrollY,
+        left: rect.left + window.scrollX - 250,
       }
+    });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirmation) return;
+
+    try {
+      await onDeleteEntry(deleteConfirmation.entryId);
+      toast.success('Journal entry deleted successfully');
+    } catch (error) {
+      console.error('Error deleting entry:', error);
+      toast.error('Failed to delete journal entry');
+    } finally {
+      setDeleteConfirmation(null);
     }
+  };
+
+  const cancelDelete = () => {
+    setDeleteConfirmation(null);
   };
 
   const toggleTag = (tag: string) => {
@@ -377,7 +405,7 @@ export function Journal({ entries, onAddEntry, onUpdateEntry, onDeleteEntry, tra
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDeleteEntry(entry.id)}
+                        onClick={(e) => handleDeleteClick(entry.id, e)}
                         className="text-red-500 hover:text-red-600 hover:bg-red-50"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -456,6 +484,59 @@ export function Journal({ entries, onAddEntry, onUpdateEntry, onDeleteEntry, tra
           </ul>
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Toast */}
+      {deleteConfirmation && (
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 animate-in fade-in duration-200"
+            onClick={cancelDelete}
+          />
+          
+          {/* Confirmation Toast */}
+          <div
+            className="fixed z-50 animate-in slide-in-from-top-2 fade-in duration-300"
+            style={{
+              top: `${deleteConfirmation.position.top}px`,
+              left: `${deleteConfirmation.position.left}px`,
+            }}
+          >
+            <div className="bg-background border border-red-200 dark:border-red-900 rounded-lg shadow-2xl p-4 w-[280px]">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5">
+                  <AlertTriangle className="w-5 h-5 text-red-500" />
+                </div>
+                <div className="flex-1 space-y-3">
+                  <div>
+                    <h3 className="font-semibold text-sm">Delete Entry</h3>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Are you sure? This action cannot be undone.
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={cancelDelete}
+                      className="flex-1 text-xs h-8"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={confirmDelete}
+                      className="flex-1 text-xs h-8 bg-red-500 hover:bg-red-600 text-white"
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
