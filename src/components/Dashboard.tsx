@@ -107,7 +107,7 @@ export function Dashboard({ trades }: DashboardProps) {
   return (
     <div className="space-y-4 md:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <h1 className="text-xl md:text-2xl">Trading Dashboard</h1>
+        <h1 className="text-xl md:text-2xl font-bold">Trading Dashboard</h1>
         <div className="text-sm text-muted-foreground">
           Total Trades: {stats.totalTrades}
         </div>
