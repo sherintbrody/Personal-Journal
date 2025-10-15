@@ -37,7 +37,7 @@ export function Login() {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-[#1E90FF]/10 via-background to-[#28A745]/10 p-4">
-      <div className="w-full max-w-sm space-y-6 px-6">
+      <div className="w-full max-w-sm space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
           <div className="flex items-center justify-center mb-3">
@@ -119,10 +119,10 @@ export function Login() {
                   <AlertDescription className="text-xs">{error}</AlertDescription>
                 </Alert>
               )}
-            <div className="flex justify-center">
+
               <Button
                 type="submit"
-                className="w-1/2 h-10 bg-[#1E90FF] hover:bg-[#1E90FF]/90 text-sm mt-5"
+                className="w-full h-10 bg-[#1E90FF] hover:bg-[#1E90FF]/90 text-sm mt-5"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -134,7 +134,6 @@ export function Login() {
                   'Sign In'
                 )}
               </Button>
-            </div>
             </form>
           </CardContent>
           <CardFooter className="flex flex-col space-y-2 pb-5 pt-2 px-8">
