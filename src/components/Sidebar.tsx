@@ -132,17 +132,6 @@ export function Sidebar({ activeTab, setActiveTab, isMobile = false }: SidebarPr
               <LogOut className="w-3 h-3" />
               Logout
             </Button>
-
-            {/* Copyright */}
-            <div className="pt-2 border-t border-border/50">
-              <p className="text-[10px] text-muted-foreground text-center">
-                © 2024 Trading Journal
-              </p>
-              <p className="text-[10px] text-muted-foreground flex items-center justify-center gap-1 mt-0.5">
-                <Shield className="w-3 h-3 text-green-500" />
-                Secure Session
-              </p>
-            </div>
           </div>
         </div>
       </aside>
