@@ -87,7 +87,7 @@ export function RiskCalculator() {
     <div className="space-y-4 md:space-y-6">
       <div className="flex items-center gap-3">
         <Calculator className="w-5 h-5 md:w-6 md:h-6 text-[#1E90FF]" />
-        <h1 className="text-xl md:text-2xl">Risk Management Calculator</h1>
+        <h1 className="text-xl md:text-2xl font-bold">Risk Management Calculator</h1>
       </div>
 
       <Tabs defaultValue="risk-calculator" className="space-y-4">
