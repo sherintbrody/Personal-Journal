@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -24,7 +24,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from './ui/dialog';
-import { Search, Edit, Trash2, Download, Filter } from 'lucide-react';
+import { Search, Edit, Trash2, Download, Filter, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Trade {
@@ -53,6 +53,11 @@ interface TradeLogProps {
   onDeleteTrade?: (tradeId: string) => void;
 }
 
+interface DeleteConfirmation {
+  tradeId: string;
+  position: { top: number; left: number };
+}
+
 const EMOTIONS = [
   'Calm', 'Confident', 'Fearful', 'Greedy', 'Frustrated', 'Euphoric', 
   'Hesitant', 'Focused', 'Stressed', 'Optimistic', 'Pessimistic', 'Neutral'
@@ -65,6 +70,7 @@ export function TradeLog({ trades: propTrades, onUpdateTrade, onDeleteTrade }: T
   const [filterStatus, setFilterStatus] = useState('all');
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingTrade, setEditingTrade] = useState<Trade | null>(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState<DeleteConfirmation | null>(null);
 
   // Load trades from localStorage on mount
   useEffect(() => {
@@ -123,34 +129,54 @@ export function TradeLog({ trades: propTrades, onUpdateTrade, onDeleteTrade }: T
     setIsEditDialogOpen(true);
   };
 
-  const handleDelete = (tradeId: string) => {
-    if (confirm('Are you sure you want to delete this trade? This action cannot be undone.')) {
-      // Delete from localStorage
-      const storedTrades = localStorage.getItem('trades');
-      if (storedTrades) {
-        const parsed = JSON.parse(storedTrades);
-        const updated = parsed.filter((t: Trade) => t.id !== tradeId);
-        localStorage.setItem('trades', JSON.stringify(updated));
-        
-        // Update local state
-        setLocalTrades(updated.map((t: any) => ({
-          ...t,
-          openDate: new Date(t.openDate),
-          closeDate: t.closeDate ? new Date(t.closeDate) : undefined,
-          timestamp: t.timestamp ? new Date(t.timestamp) : new Date()
-        })));
-        
-        // Trigger update event
-        window.dispatchEvent(new Event('tradesUpdated'));
+  const handleDeleteClick = (tradeId: string, event: React.MouseEvent<HTMLButtonElement>) => {
+    const button = event.currentTarget;
+    const rect = button.getBoundingClientRect();
+    
+    setDeleteConfirmation({
+      tradeId,
+      position: {
+        top: rect.top + window.scrollY,
+        left: rect.left + window.scrollX - 250, // Position to the left of the button
       }
+    });
+  };
 
-      // Call parent callback if provided
-      if (onDeleteTrade) {
-        onDeleteTrade(tradeId);
-      }
+  const confirmDelete = () => {
+    if (!deleteConfirmation) return;
 
-      toast.success('Trade deleted successfully');
+    const tradeId = deleteConfirmation.tradeId;
+
+    // Delete from localStorage
+    const storedTrades = localStorage.getItem('trades');
+    if (storedTrades) {
+      const parsed = JSON.parse(storedTrades);
+      const updated = parsed.filter((t: Trade) => t.id !== tradeId);
+      localStorage.setItem('trades', JSON.stringify(updated));
+      
+      // Update local state
+      setLocalTrades(updated.map((t: any) => ({
+        ...t,
+        openDate: new Date(t.openDate),
+        closeDate: t.closeDate ? new Date(t.closeDate) : undefined,
+        timestamp: t.timestamp ? new Date(t.timestamp) : new Date()
+      })));
+      
+      // Trigger update event
+      window.dispatchEvent(new Event('tradesUpdated'));
     }
+
+    // Call parent callback if provided
+    if (onDeleteTrade) {
+      onDeleteTrade(tradeId);
+    }
+
+    toast.success('Trade deleted successfully');
+    setDeleteConfirmation(null);
+  };
+
+  const cancelDelete = () => {
+    setDeleteConfirmation(null);
   };
 
   const handleSaveEdit = () => {
@@ -263,7 +289,7 @@ export function TradeLog({ trades: propTrades, onUpdateTrade, onDeleteTrade }: T
     <div className="space-y-4 md:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl md:text-2xl">Trade Log</h1>
+          <h1 className="text-xl md:text-2xl font-bold">Trade Log</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Complete history of all your trades
           </p>
@@ -279,25 +305,25 @@ export function TradeLog({ trades: propTrades, onUpdateTrade, onDeleteTrade }: T
         <Card>
           <CardContent className="p-3 md:p-4">
             <p className="text-xs sm:text-sm text-muted-foreground">Total Trades</p>
-            <p className="text-lg sm:text-2xl text-[#1E90FF]">{stats.totalTrades}</p>
+            <p className="text-lg sm:text-2xl font-bold text-[#1E90FF]">{stats.totalTrades}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-3 md:p-4">
             <p className="text-xs sm:text-sm text-muted-foreground">Open</p>
-            <p className="text-lg sm:text-2xl">{stats.openTrades}</p>
+            <p className="text-lg sm:text-2xl font-bold">{stats.openTrades}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-3 md:p-4">
             <p className="text-xs sm:text-sm text-muted-foreground">Closed</p>
-            <p className="text-lg sm:text-2xl">{stats.closedTrades}</p>
+            <p className="text-lg sm:text-2xl font-bold">{stats.closedTrades}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-3 md:p-4">
             <p className="text-xs sm:text-sm text-muted-foreground">Total P&L</p>
-            <p className={`text-lg sm:text-2xl ${stats.totalPnL >= 0 ? 'text-[#28A745]' : 'text-red-500'}`}>
+            <p className={`text-lg sm:text-2xl font-bold ${stats.totalPnL >= 0 ? 'text-[#28A745]' : 'text-red-500'}`}>
               ${stats.totalPnL.toFixed(2)}
             </p>
           </CardContent>
@@ -305,7 +331,7 @@ export function TradeLog({ trades: propTrades, onUpdateTrade, onDeleteTrade }: T
         <Card>
           <CardContent className="p-3 md:p-4">
             <p className="text-xs sm:text-sm text-muted-foreground">Win Rate</p>
-            <p className="text-lg sm:text-2xl">{stats.winRate.toFixed(1)}%</p>
+            <p className="text-lg sm:text-2xl font-bold">{stats.winRate.toFixed(1)}%</p>
           </CardContent>
         </Card>
       </div>
@@ -439,7 +465,7 @@ export function TradeLog({ trades: propTrades, onUpdateTrade, onDeleteTrade }: T
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleDelete(trade.id)}
+                            onClick={(e) => handleDeleteClick(trade.id, e)}
                             className="text-red-500 hover:text-red-700"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -454,6 +480,59 @@ export function TradeLog({ trades: propTrades, onUpdateTrade, onDeleteTrade }: T
           </div>
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Toast */}
+      {deleteConfirmation && (
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 animate-in fade-in duration-200"
+            onClick={cancelDelete}
+          />
+          
+          {/* Confirmation Toast */}
+          <div
+            className="fixed z-50 animate-in slide-in-from-top-2 fade-in duration-300"
+            style={{
+              top: `${deleteConfirmation.position.top}px`,
+              left: `${deleteConfirmation.position.left}px`,
+            }}
+          >
+            <div className="bg-background border border-red-200 dark:border-red-900 rounded-lg shadow-2xl p-4 w-[280px]">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5">
+                  <AlertTriangle className="w-5 h-5 text-red-500" />
+                </div>
+                <div className="flex-1 space-y-3">
+                  <div>
+                    <h3 className="font-semibold text-sm">Delete Trade</h3>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Are you sure? This action cannot be undone.
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={cancelDelete}
+                      className="flex-1 text-xs h-8"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={confirmDelete}
+                      className="flex-1 text-xs h-8 bg-red-500 hover:bg-red-600 text-white"
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
