@@ -6,7 +6,7 @@ import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Calendar as CalendarIcon, Plus, Search, Trash2, AlertTriangle } from 'lucide-react';
+import { Calendar as CalendarIcon, Plus, Search, Trash2, AlertTriangle, BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Trade {
