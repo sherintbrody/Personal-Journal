@@ -20,6 +20,8 @@ interface Trade {
   type: 'buy' | 'sell';
   exitPrice?: number;
   status: 'open' | 'closed';
+  openDate: Date;
+  closeDate?: Date;
 }
 
 interface PnLCalendarProps {
@@ -59,10 +61,18 @@ export function PnLCalendar({ trades }: PnLCalendarProps) {
     const currentDateIter = new Date(startDate);
     
     while (currentDateIter <= endDate) {
-      const dateStr = currentDateIter.toDateString();
-      const dayTrades = trades.filter(t => 
-        t.status === 'closed' && t.timestamp.toDateString() === dateStr
-      );
+      // Normalize to YYYY-MM-DD format
+      const dateStr = currentDateIter.toISOString().split('T')[0];
+      
+      const dayTrades = trades.filter(t => {
+        if (t.status !== 'closed') return false;
+        
+        // Use closeDate as primary, fallback to openDate
+        const tradeDate = t.closeDate || t.openDate;
+        const tradeDateStr = new Date(tradeDate).toISOString().split('T')[0];
+        
+        return tradeDateStr === dateStr;
+      });
       
       const dayPnL = dayTrades.reduce((sum, t) => sum + t.result, 0);
       const wins = dayTrades.filter(t => t.result > 0).length;
@@ -85,10 +95,14 @@ export function PnLCalendar({ trades }: PnLCalendarProps) {
 
   const monthStats = useMemo(() => {
     const monthTrades = trades.filter(t => {
-      const tradeMonth = t.timestamp.getMonth();
-      const tradeYear = t.timestamp.getFullYear();
-      return t.status === 'closed' && 
-             tradeMonth === currentDate.getMonth() && 
+      if (t.status !== 'closed') return false;
+      
+      // Use closeDate as primary, fallback to openDate
+      const tradeDate = t.closeDate || t.openDate;
+      const tradeMonth = new Date(tradeDate).getMonth();
+      const tradeYear = new Date(tradeDate).getFullYear();
+      
+      return tradeMonth === currentDate.getMonth() && 
              tradeYear === currentDate.getFullYear();
     });
     
@@ -159,7 +173,7 @@ export function PnLCalendar({ trades }: PnLCalendarProps) {
   return (
     <div className="space-y-4 md:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="text-xl md:text-2xl">P&L Calendar</h1>
+        <h1 className="text-xl md:text-2xl font-bold">P&L Calendar</h1>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={previousMonth}>
             <ChevronLeft className="w-4 h-4" />
@@ -183,7 +197,7 @@ export function PnLCalendar({ trades }: PnLCalendarProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs sm:text-sm text-muted-foreground">Monthly P&L</p>
-                <p className={`text-lg sm:text-2xl ${monthStats.totalPnL >= 0 ? 'text-[#28A745]' : 'text-red-500'}`}>
+                <p className={`text-lg sm:text-2xl font-bold ${monthStats.totalPnL >= 0 ? 'text-[#28A745]' : 'text-red-500'}`}>
                   ${monthStats.totalPnL.toFixed(2)}
                 </p>
               </div>
@@ -199,7 +213,7 @@ export function PnLCalendar({ trades }: PnLCalendarProps) {
         <Card>
           <CardContent className="p-3 md:p-4">
             <p className="text-xs sm:text-sm text-muted-foreground">Win Rate</p>
-            <p className="text-lg sm:text-2xl">{monthStats.winRate.toFixed(1)}%</p>
+            <p className="text-lg sm:text-2xl font-bold">{monthStats.winRate.toFixed(1)}%</p>
             <p className="text-xs text-muted-foreground">
               {monthStats.wins}W / {monthStats.losses}L
             </p>
@@ -209,7 +223,7 @@ export function PnLCalendar({ trades }: PnLCalendarProps) {
         <Card>
           <CardContent className="p-3 md:p-4">
             <p className="text-xs sm:text-sm text-muted-foreground">Profit/Loss Days</p>
-            <p className="text-lg sm:text-2xl text-[#1E90FF]">
+            <p className="text-lg sm:text-2xl font-bold text-[#1E90FF]">
               {monthStats.profitDays} / {monthStats.lossDays}
             </p>
             <p className="text-xs text-muted-foreground">
@@ -221,7 +235,7 @@ export function PnLCalendar({ trades }: PnLCalendarProps) {
         <Card>
           <CardContent className="p-3 md:p-4">
             <p className="text-xs sm:text-sm text-muted-foreground">Avg Daily P&L</p>
-            <p className={`text-lg sm:text-2xl ${monthStats.avgDailyPnL >= 0 ? 'text-[#28A745]' : 'text-red-500'}`}>
+            <p className={`text-lg sm:text-2xl font-bold ${monthStats.avgDailyPnL >= 0 ? 'text-[#28A745]' : 'text-red-500'}`}>
               ${monthStats.avgDailyPnL.toFixed(2)}
             </p>
           </CardContent>
