@@ -160,7 +160,7 @@ export function Journal({ entries, onAddEntry, onUpdateEntry, onDeleteEntry, tra
     <div className="space-y-4 md:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl md:text-2xl flex items-center gap-2">
+          <h1 className="text-xl md:text-2xl font-bold flex items-center gap-2">
             <BookOpen className="w-6 h-6 text-[#1E90FF]" />
             Trading Journal
           </h1>
