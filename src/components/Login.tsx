@@ -37,7 +37,7 @@ export function Login() {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-[#1E90FF]/10 via-background to-[#28A745]/10 p-4">
-      <div className="w-full max-w-sm space-y-6">
+      <div className="w-full max-w-md space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
           <div className="flex items-center justify-center mb-3">
@@ -53,18 +53,18 @@ export function Login() {
 
         {/* Login Card - Wider Version with Better Padding */}
         <Card className="border-2 shadow-2xl">
-          <CardHeader className="space-y-1 pb-4 pt-6 px-8">
+          <CardHeader className="space-y-1 pb-6 pt-8 px-12">
             <CardTitle className="text-xl text-center">Welcome Back</CardTitle>
             <CardDescription className="text-center text-xs">
               Sign in to access your trading dashboard
             </CardDescription>
           </CardHeader>
-          <CardContent className="px-8 pb-6">
-            <form onSubmit={handleSubmit} className="space-y-4">
+          <CardContent className="px-12 pb-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
               {/* Email Field */}
-              <div className="space-y-2">
-                <Label htmlFor="email" className="flex items-center gap-1.5 text-xs">
-                  <Mail className="w-3.5 h-3.5 text-muted-foreground" />
+              <div className="space-y-3">
+                <Label htmlFor="email" className="flex items-center gap-1.5 text-sm font-medium">
+                  <Mail className="w-4 h-4 text-muted-foreground" />
                   Email
                 </Label>
                 <Input
@@ -73,7 +73,7 @@ export function Login() {
                   placeholder="your.email@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="h-10 text-sm"
+                  className="h-11 text-sm px-4"
                   required
                   disabled={isLoading}
                   autoComplete="email"
@@ -81,9 +81,9 @@ export function Login() {
               </div>
               
               {/* Password Field */}
-              <div className="space-y-2">
-                <Label htmlFor="password" className="flex items-center gap-1.5 text-xs">
-                  <Lock className="w-3.5 h-3.5 text-muted-foreground" />
+              <div className="space-y-3">
+                <Label htmlFor="password" className="flex items-center gap-1.5 text-sm font-medium">
+                  <Lock className="w-4 h-4 text-muted-foreground" />
                   Password
                 </Label>
                 <div className="relative">
@@ -93,7 +93,7 @@ export function Login() {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="h-10 pr-10 text-sm"
+                    className="h-11 pr-12 px-4 text-sm"
                     required
                     disabled={isLoading}
                     autoComplete="current-password"
@@ -115,14 +115,14 @@ export function Login() {
 
               {/* Error Alert */}
               {error && (
-                <Alert variant="destructive" className="py-2.5">
+                <Alert variant="destructive" className="py-3">
                   <AlertDescription className="text-xs">{error}</AlertDescription>
                 </Alert>
               )}
 
               <Button
                 type="submit"
-                className="w-full h-10 bg-[#1E90FF] hover:bg-[#1E90FF]/90 text-sm mt-5"
+                className="w-full h-11 bg-[#1E90FF] hover:bg-[#1E90FF]/90 text-sm mt-7"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -136,7 +136,7 @@ export function Login() {
               </Button>
             </form>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-2 pb-5 pt-2 px-8">
+          <CardFooter className="flex flex-col space-y-2 pb-6 pt-3 px-12">
             <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
               <Shield className="w-3.5 h-3.5 text-[#28A745]" />
               <span>Secure Trading Journal System</span>
