@@ -92,7 +92,7 @@ export function Settings({ currentAccountId, onAccountChange }: SettingsProps) {
 
       <Tabs defaultValue="general" className="space-y-4">
         {/* Custom Tab List with improved responsive layout */}
-        < /*TabsList className="h-auto p-1 bg-muted/40 w-full">
+        <TabsList className="h-auto p-1 bg-muted/40 w-full">
           <div className="flex flex-row w-full overflow-x-auto scrollbar-thin scrollbar-thumb-border">
             <div className="flex flex-row min-w-full md:min-w-0 md:grid md:grid-cols-5 w-full gap-1">
               <TabsTrigger 
@@ -135,7 +135,7 @@ export function Settings({ currentAccountId, onAccountChange }: SettingsProps) {
         </TabsList>
 
         {/* Alternative Modern Tab Design (uncomment to use) */}
-        { <div className="border-b border-border">
+        {/* <div className="border-b border-border">
           <TabsList className="h-auto p-0 bg-transparent w-full justify-start rounded-none">
             <div className="flex flex-row w-full overflow-x-auto scrollbar-none">
               <TabsTrigger 
