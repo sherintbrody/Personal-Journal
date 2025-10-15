@@ -173,7 +173,7 @@ export function AddTrade({ onAddTrade, currentAccountId }: AddTradeProps){
 
   return (
     <div className="max-w-4xl mx-auto space-y-4 md:space-y-6">
-      <h1 className="text-xl md:text-2xl">Add New Trade</h1>
+      <h1 className="text-xl md:text-2xl font-bold">Add New Trade</h1>
       
       <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
