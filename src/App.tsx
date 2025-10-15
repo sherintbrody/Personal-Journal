@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from './components/ui/card'; // ADD THIS LINE
+import { Card, CardContent } from './components/ui/card';
 import { Wallet } from 'lucide-react';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
@@ -12,17 +12,24 @@ import { Notes } from './components/Notes';
 import { Settings } from './components/Settings';
 import { RiskCalculator } from './components/RiskCalculator';
 import { MobileNav } from './components/MobileNav';
-import { AccountManager } from './components/AccountManager'; // ADD THIS
+import { AccountManager } from './components/AccountManager';
 import { Toaster, toast } from 'sonner';
 import { useTrades } from './hooks/useTrades';
 import { useJournal } from './hooks/useJournal';
 import { useNotes } from './hooks/useNotes';
-import { useAccounts } from './hooks/useAccounts'; // ADD THIS
+import { useAccounts } from './hooks/useAccounts';
 import { supabase } from './lib/supabase';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './components/ui/select';
 
 interface Trade {
   id: string;
-  accountId?: string; // ADD THIS
+  accountId?: string;
   instrument: string;
   lotSize: number;
   entryPrice: number;
@@ -45,10 +52,10 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [currentAccountId, setCurrentAccountId] = useState<string>(''); // ADD THIS
+  const [currentAccountId, setCurrentAccountId] = useState<string>('');
   
   // Use Supabase hooks
-  const { accounts, loading: accountsLoading } = useAccounts(); // ADD THIS
+  const { accounts, loading: accountsLoading } = useAccounts();
   
   const { 
     trades: supabaseTrades, 
@@ -56,7 +63,7 @@ export default function App() {
     addTrade: addTradeToSupabase, 
     updateTrade: updateTradeInSupabase, 
     deleteTrade: deleteTradeFromSupabase 
-  } = useTrades(currentAccountId); // Pass currentAccountId
+  } = useTrades(currentAccountId);
 
   const {
     entries: journalEntries,
@@ -84,7 +91,7 @@ export default function App() {
   // Transform Supabase trades to component format (with Date objects)
   const trades: Trade[] = supabaseTrades.map(trade => ({
     id: trade.id,
-    accountId: trade.account_id, // ADD THIS
+    accountId: trade.account_id,
     instrument: trade.instrument,
     lotSize: trade.lot_size,
     entryPrice: trade.entry_price,
@@ -110,7 +117,7 @@ export default function App() {
         try {
           const sampleTrades = [
             {
-              account_id: currentAccountId, // ADD THIS
+              account_id: currentAccountId,
               instrument: 'NAS100',
               lot_size: 0.5,
               entry_price: 15850,
@@ -129,7 +136,7 @@ export default function App() {
               close_date: new Date(2024, 9, 15, 15, 45).toISOString()
             },
             {
-              account_id: currentAccountId, // ADD THIS
+              account_id: currentAccountId,
               instrument: 'GOLD',
               lot_size: 0.3,
               entry_price: 1950.50,
@@ -148,7 +155,7 @@ export default function App() {
               close_date: new Date(2024, 9, 12, 14, 30).toISOString()
             },
             {
-              account_id: currentAccountId, // ADD THIS
+              account_id: currentAccountId,
               instrument: 'US30',
               lot_size: 0.8,
               entry_price: 34980,
@@ -167,7 +174,7 @@ export default function App() {
               close_date: new Date(2024, 9, 10, 16, 20).toISOString()
             },
             {
-              account_id: currentAccountId, // ADD THIS
+              account_id: currentAccountId,
               instrument: 'EUR/USD',
               lot_size: 1.0,
               entry_price: 1.0850,
@@ -211,7 +218,7 @@ export default function App() {
   const addTrade = async (trade: Omit<Trade, 'id' | 'timestamp'>) => {
     try {
       await addTradeToSupabase({
-        account_id: currentAccountId, // ADD THIS
+        account_id: currentAccountId,
         instrument: trade.instrument,
         lot_size: trade.lotSize,
         entry_price: trade.entryPrice,
@@ -267,6 +274,40 @@ export default function App() {
     }
   };
 
+  // Mini account selector component for Dashboard
+  const MiniAccountSelector = () => {
+    const currentAccount = accounts.find(a => a.id === currentAccountId);
+    
+    return (
+      <div className="flex items-center gap-2">
+        <Wallet className="w-4 h-4 text-[#1E90FF]" />
+        <Select value={currentAccountId} onValueChange={setCurrentAccountId}>
+          <SelectTrigger className="w-[200px] h-8">
+            <SelectValue placeholder="Select account">
+              {currentAccount && (
+                <span className="text-sm">
+                  {currentAccount.name}
+                </span>
+              )}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {accounts.map(account => (
+              <SelectItem key={account.id} value={account.id}>
+                <div className="flex items-center gap-2">
+                  <span>{account.name}</span>
+                  <span className="text-xs text-muted-foreground">
+                    ({account.broker})
+                  </span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    );
+  };
+
   const renderContent = () => {
     // Combined loading state
     const isLoading = tradesLoading || journalLoading || notesLoading || accountsLoading;
@@ -288,7 +329,7 @@ export default function App() {
       );
     }
 
-    // Show account selector if no account selected
+    // Show account creation if no accounts exist
     if (!currentAccountId && accounts.length === 0) {
       return (
         <div className="flex items-center justify-center h-screen">
@@ -311,7 +352,15 @@ export default function App() {
 
     switch (activeTab) {
       case 'dashboard':
-        return <Dashboard trades={trades} />;
+        return (
+          <div className="space-y-4">
+            {/* Mini account selector only for dashboard */}
+            <div className="flex justify-end">
+              <MiniAccountSelector />
+            </div>
+            <Dashboard trades={trades} />
+          </div>
+        );
       case 'add-trade':
         return <AddTrade onAddTrade={addTrade} currentAccountId={currentAccountId} />;
       case 'trade-log':
@@ -364,15 +413,6 @@ export default function App() {
           isMobile={false}
         />
         <main className="flex-1 p-6 overflow-auto">
-          {/* Account Manager at top */}
-          {currentAccountId && (
-            <div className="mb-6">
-              <AccountManager 
-                currentAccountId={currentAccountId}
-                onAccountChange={setCurrentAccountId}
-              />
-            </div>
-          )}
           {renderContent()}
         </main>
       </div>
@@ -386,15 +426,6 @@ export default function App() {
           setIsOpen={setIsMobileMenuOpen}
         />
         <main className="pb-20 px-4 py-4 overflow-auto">
-          {/* Account Manager at top */}
-          {currentAccountId && (
-            <div className="mb-4">
-              <AccountManager 
-                currentAccountId={currentAccountId}
-                onAccountChange={setCurrentAccountId}
-              />
-            </div>
-          )}
           {renderContent()}
         </main>
       </div>
