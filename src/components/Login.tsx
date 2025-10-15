@@ -122,7 +122,7 @@ export function Login() {
             <div className="flex justify-center">
               <Button
                 type="submit"
-                className="w-full h-10 bg-[#1E90FF] hover:bg-[#1E90FF]/90 text-sm mt-5"
+                className="w-1/2 h-10 bg-[#1E90FF] hover:bg-[#1E90FF]/90 text-sm mt-5"
                 disabled={isLoading}
               >
                 {isLoading ? (
