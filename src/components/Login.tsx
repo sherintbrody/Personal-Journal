@@ -119,7 +119,7 @@ export function Login() {
                   <AlertDescription className="text-xs">{error}</AlertDescription>
                 </Alert>
               )}
-
+            <div className="flex justify-center">
               <Button
                 type="submit"
                 className="w-full h-10 bg-[#1E90FF] hover:bg-[#1E90FF]/90 text-sm mt-5"
@@ -134,6 +134,7 @@ export function Login() {
                   'Sign In'
                 )}
               </Button>
+            </div>
             </form>
           </CardContent>
           <CardFooter className="flex flex-col space-y-2 pb-5 pt-2 px-8">
