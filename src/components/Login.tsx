@@ -37,7 +37,7 @@ export function Login() {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-[#1E90FF]/10 via-background to-[#28A745]/10 p-4">
-      <div className="w-full max-w-sm space-y-6">
+      <div className="w-full max-w-sm space-y-6 px-6">
         {/* Header */}
         <div className="text-center space-y-2">
           <div className="flex items-center justify-center mb-3">
