@@ -4,11 +4,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { TrendingUp, Mail, Lock, Shield, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { TrendingUp, User, Lock, Shield, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 export function Login() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -19,14 +19,14 @@ export function Login() {
     e.preventDefault();
     setError('');
     
-    if (!email || !password) {
-      setError('Please enter both email and password');
+    if (!username || !password) {
+      setError('Please enter both username and password');
       return;
     }
 
     setIsLoading(true);
     
-    const result = await login(email, password);
+    const result = await login(username, password);
     
     if (!result.success) {
       setError(result.error || 'Invalid credentials');
@@ -37,7 +37,7 @@ export function Login() {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-[#1E90FF]/10 via-background to-[#28A745]/10 p-4">
-      <div className="w-full max-w-sm space-y-6">
+      <div className="w-full max-w-sm space-y-6 px-6">
         {/* Header */}
         <div className="text-center space-y-2">
           <div className="flex items-center justify-center mb-3">
@@ -61,22 +61,22 @@ export function Login() {
           </CardHeader>
           <CardContent className="px-8 pb-6">
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Email Field */}
+              {/* Username Field */}
               <div className="space-y-2">
-                <Label htmlFor="email" className="flex items-center gap-1.5 text-xs">
-                  <Mail className="w-3.5 h-3.5 text-muted-foreground" />
-                  Email
+                <Label htmlFor="username" className="flex items-center gap-1.5 text-xs">
+                  <User className="w-3.5 h-3.5 text-muted-foreground" />
+                  Username
                 </Label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="your.email@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  id="username"
+                  type="text"
+                  placeholder="Enter your username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className="h-10 text-sm"
                   required
                   disabled={isLoading}
-                  autoComplete="email"
+                  autoComplete="username"
                 />
               </div>
               
@@ -120,20 +120,22 @@ export function Login() {
                 </Alert>
               )}
 
-              <Button
-                type="submit"
-                className="w-full h-10 bg-[#1E90FF] hover:bg-[#1E90FF]/90 text-sm mt-5"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <span className="flex items-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Signing in...
-                  </span>
-                ) : (
-                  'Sign In'
-                )}
-              </Button>
+              <div className="flex justify-center">
+                <Button
+                  type="submit"
+                  className="w-1/2 h-10 bg-[#1E90FF] hover:bg-[#1E90FF]/90 text-sm mt-5"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Signing in...
+                    </span>
+                  ) : (
+                    'Sign In'
+                  )}
+                </Button>
+              </div>
             </form>
           </CardContent>
           <CardFooter className="flex flex-col space-y-2 pb-5 pt-2 px-8">
